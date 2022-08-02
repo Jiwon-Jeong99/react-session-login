@@ -26,8 +26,10 @@ const LoginPage = () => {
       };
 
       //   fetch와 같음 - post로 email, password 보냄
-      fetch("http://127.0.0.1:8000", {
+      fetch("http://127.0.0.1:8000/auth/login", {
         method: "POST",
+        mode: 'cors',
+        credentials: 'include',
         headers: {
           // content-type : 해당 형태로
           "Content-Type": "application/json",
@@ -36,16 +38,14 @@ const LoginPage = () => {
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data.key) {
-            localStorage.clear();
-            localStorage.setItem("sessionId이름", data.key);
-            window.location.replace("http://localhost:3000");
-          } else {
-            setUsername("");
-            setPassword("");
-            localStorage.clear();
+            localStorage.setItem("real_name", data.data.last_name);
+            window.location.replace("http://localhost:3000/success");
+          }).catch( (error) => {
+            setUsername('');
+            setPassword('');
           }
-        });
+        );
+        
     },
     [username, password]
   );
@@ -62,7 +62,7 @@ const LoginPage = () => {
           <span>이메일 주소</span>
           <div>
             <input
-              type="email"
+              type="text"
               id="email"
               name="email"
               value={username}
