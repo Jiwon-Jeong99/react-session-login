@@ -12,7 +12,7 @@ const Success = () => {
       }, [userName])
     return (
     <>
-      <div>{userName}success 로그인에 성공하셨습니다!!</div>
+      <div>success! {userName}님 로그인에 성공하셨습니다!!</div>
       <div>{email}</div>
     </>
   );

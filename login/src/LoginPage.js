@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { getCookie, setCookie } from "./auth/Cookie";
 import Success from "./Success";
+import { Navigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-
 
   const onChangeUserName = useCallback((e) => {
     setUserName(e.target.value);
@@ -31,7 +31,7 @@ const LoginPage = () => {
       //  fetch와 같음 - post로 email, password 보냄
       //  post니까 데이터 요청 - fetch는 데이터 요청서
       //  headers -> 서버한테 json 형태로 사용할겁니다 알려줌
-      //  body에 요청 내용을 보내는데, user의 내용을 json형태로 보내줄거야 
+      //  body에 요청 내용을 보내는데, user의 내용을 json-string형태로 보내줄거야 
       fetch("http://127.0.0.1:8000/auth/login", {
         method: "POST",
         mode: "cors",
@@ -48,11 +48,13 @@ const LoginPage = () => {
           setUserName(data.data.userName);
           setCookie("email", data.data.email);
           setCookie("userName", data.data.user_name);
+          setCookie("isSessionOk", data.success);
         })
         // 에러가 나면 403, 로그인 페이지 정보를 지워줌
         .catch((error) => {
           setUserName("");
           setPassword("");
+          setCookie("isSessionOk", false);
         })
         .catch((error) => {
           console.log(error);
@@ -61,17 +63,14 @@ const LoginPage = () => {
     [userName, password]
   );
 
-  useEffect(() => {
-    console.log("렌더링 될때마다 실행");
-    let sessionId = getCookie("sessionid");
-    if (sessionId) {
-      setIsLogin(true);
-    }
-  },[]);
+  if(getCookie("isSessionOk")){
+      return <Navigate to="/success"></Navigate>
+  }
 
+    
   return (
     <div id="container">
-      {!isLogin ? (
+        {/* 동기 처리 : Login이 안 되었으면 이거 되면 Success 페이지로 */}
         <div>
           <h1>Login</h1>
           {/* onsubmit을 통해 submit을 제어 가능 -> form 전송 직전 form 안 데이터의 유효성 검증하기 위해 사용 */}
@@ -103,9 +102,6 @@ const LoginPage = () => {
             <button type="submit">로그인</button>
           </form>
         </div>
-      ) : (
-        <Success />
-      )}
     </div>
   );
 };
