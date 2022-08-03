@@ -6,6 +6,8 @@ const LoginPage = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+
 
   const onChangeUserName = useCallback((e) => {
     setUserName(e.target.value);
@@ -27,7 +29,9 @@ const LoginPage = () => {
       };
 
       //  fetch와 같음 - post로 email, password 보냄
-      //  fetch로 json형태로 http 헤더에 담아 user 정보를 json을 문자열 형태 변신해서 주세요.
+      //  post니까 데이터 요청 - fetch는 데이터 요청서
+      //  headers -> 서버한테 json 형태로 사용할겁니다 알려줌
+      //  body에 요청 내용을 보내는데, user의 내용을 json형태로 보내줄거야 
       fetch("http://127.0.0.1:8000/auth/login", {
         method: "POST",
         mode: "cors",
@@ -36,13 +40,12 @@ const LoginPage = () => {
           // content-type : 해당 형태로
           "Content-Type": "application/json",
         },
-        // user 정보를 보내주는데, json을 문자열로 변환한 상태로
         body: JSON.stringify(user),
       })
         .then((res) => res.json())
         .then((data) => {
-        //   setUserEmail(data.data.email);
-        //   setUserName(data.data.userName);
+          setUserEmail(data.data.email);
+          setUserName(data.data.userName);
           setCookie("email", data.data.email);
           setCookie("userName", data.data.user_name);
         })
@@ -71,8 +74,9 @@ const LoginPage = () => {
       {!isLogin ? (
         <div>
           <h1>Login</h1>
+          {/* onsubmit을 통해 submit을 제어 가능 -> form 전송 직전 form 안 데이터의 유효성 검증하기 위해 사용 */}
           <form onSubmit={onSubmit}>
-            <label id="email-label">
+            <label id="user-label">
               <span>유저 아이디</span>
               <div>
                 <input
