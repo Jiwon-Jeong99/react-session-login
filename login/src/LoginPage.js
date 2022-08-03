@@ -6,7 +6,6 @@ const LoginPage = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
 
   const onChangeUserName = useCallback((e) => {
     setUserName(e.target.value);
