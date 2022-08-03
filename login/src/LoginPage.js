@@ -1,12 +1,15 @@
-import React, { useCallback, useState } from "react";
-import { Navigate } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
+import { getCookie, setCookie } from "./auth/Cookie";
+import Success from "./Success";
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   const onChangeusername = useCallback((e) => {
-    setUsername(e.target.value);
+    setUserName(e.target.value);
   }, []);
   const onChangePassword = useCallback((e) => {
     setPassword(e.target.value);
@@ -18,18 +21,19 @@ const LoginPage = () => {
     (e) => {
       // event 명시x -> 기본 동작 실행 x
       e.preventDefault();
-      console.log(username, password);
+      console.log(userName, password);
 
       const user = {
-        username: username,
+        username: userName,
         password: password,
       };
 
-      //   fetch와 같음 - post로 email, password 보냄
+      //  fetch와 같음 - post로 email, password 보냄
+      //  axios
       fetch("http://127.0.0.1:8000/auth/login", {
         method: "POST",
-        mode: 'cors',
-        credentials: 'include',
+        mode: "cors",
+        credentials: "include",
         headers: {
           // content-type : 해당 형태로
           "Content-Type": "application/json",
@@ -38,52 +42,66 @@ const LoginPage = () => {
       })
         .then((res) => res.json())
         .then((data) => {
-            localStorage.setItem("real_name", data.data.last_name);
-            window.location.replace("http://localhost:3000/success");
-          }).catch( (error) => {
-            setUsername('');
-            setPassword('');
-          }
-        );
-        
+          setUserEmail(data.data.email);
+          setUserName(data.data.userName);
+          setCookie("email", data.data.email);
+          setCookie("userName", data.data.user_name);
+        })
+        .catch((error) => {
+          setUserName("");
+          setPassword("");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
-    [username, password]
+    [userName, password]
   );
 
-  if (localStorage.getItem) {
-    <Navigate to="/success" />;
-  }
+  useEffect(() => {
+    console.log("렌더링 될때마다 실행");
+    let sessionId = getCookie("sessionid");
+    if (sessionId) {
+      setIsLogin(true);
+    }
+  },[]);
 
   return (
     <div id="container">
-      <h1>Login</h1>
-      <form onSubmit={onSubmit}>
-        <label id="email-label">
-          <span>이메일 주소</span>
-          <div>
-            <input
-              type="text"
-              id="email"
-              name="email"
-              value={username}
-              onChange={onChangeusername}
-            />
-          </div>
-        </label>
-        <label id="password-label">
-          <span>비밀번호</span>
-          <div>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={onChangePassword}
-            />
-          </div>
-        </label>
-        <button type="submit">로그인</button>
-      </form>
+      {!isLogin ? (
+        <div>
+          <h1>Login</h1>
+          <form onSubmit={onSubmit}>
+            <label id="email-label">
+              <span>유저 아이디</span>
+              <div>
+                <input
+                  type="text"
+                  id="email"
+                  name="email"
+                  value={userName}
+                  onChange={onChangeusername}
+                />
+              </div>
+            </label>
+            <label id="password-label">
+              <span>비밀번호</span>
+              <div>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={onChangePassword}
+                />
+              </div>
+            </label>
+            <button type="submit">로그인</button>
+          </form>
+        </div>
+      ) : (
+        <Success />
+      )}
     </div>
   );
 };

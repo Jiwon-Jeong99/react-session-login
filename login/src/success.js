@@ -1,9 +1,9 @@
-import React from 'react'
+import React from "react";
 
-const success = () => {
+const Success = ({userName}) => {
   return (
-    <div>success 로그인에 성공하셨습니다!!</div>
+    <div>{userName}success 로그인에 성공하셨습니다!!</div>
   )
 }
 
-export default success
+export default Success
